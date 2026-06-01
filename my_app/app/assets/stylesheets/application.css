@@ -1,0 +1,38 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+/* 画面全体の背景を、いま風の薄いグレーにして中央に寄せる */
+body {
+  background-color: #f4f6f9;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* おみくじ全体を白い綺麗な「カード風」に囲う */
+.omikuji-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+}
+
+/* 区切り線のデザイン */
+hr {
+  border: none;
+  border-top: 2px dashed #e0e0e0;
+  margin: 20px 0;
+}

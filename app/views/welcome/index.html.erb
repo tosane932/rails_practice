@@ -1,0 +1,44 @@
+<div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-top: 5px solid #cc0000;">
+  <h1 style="color: #cc0000; font-size: 26px; margin-top: 0; margin-bottom: 10px;">最初の出荷ステージ</h1>
+  <p style="font-size: 15px; color: #666; margin-bottom: 30px;">
+    コントローラーから届いた暗号： 
+    <strong style="color: #222; font-size: 16px;">「<%= @message %>」</strong>
+  </p>
+  
+  <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+  <%= form_with url: welcome_result_path, local: true, data: { turbo: false } do |form| %>
+    <div style="margin-bottom: 25px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 10px; color: #444; font-size: 15px;">
+        ✉️ データベースへ送る前の、最後のデータ送信テスト：
+      </label>
+      <input type="text" name="input_text" placeholder="ここに文字を入力してね" required style="width: 100%; max-width: 500px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box; transition: border-color 0.2s;">
+    </div>
+    
+    <button type="submit" style="background: #cc0000; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(204,0,0,0.2);">
+      2ページ目へ出荷！
+    </button>
+  <% end %>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+
+  <h3 style="color: #333; margin-bottom: 20px;">📦 データベース内の一覧（出荷ログ）</h3>
+  
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <% if @posts.any? %>
+        <% @posts.each do |post| %>
+            <div style="background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; display: block;"><%= post.content %></span>
+                    <span style="font-size: 12px; color: #999;"><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+                </div>
+
+                <%= button_to "❌ 削除", destroy_post_path(post.id), method: :delete, data: { turbo: false }, style: "color: #e03131; text-decoration: none; font-size: 14px; font-weight: bold; border: 1px solid #ffe3e3; padding: 6px 12px; border-radius: 4px; background: #fff5f5; cursor: pointer;" %>
+            </div>
+        <% end %>
+    <% else %>
+      <p style="color: #999; font-style: italic;">まだデータベースにログはありません。</p>
+    <% end %>
+  </div>
+
+</div>
