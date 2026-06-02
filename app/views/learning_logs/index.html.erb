@@ -31,9 +31,12 @@
 <h1>📋 運行記録ログ一覧</h1>
 <div id="learning_logs_list" style="display: flex; flex-direction: column; gap: 10px;">
   <% @learning_logs.order(learned_on: :desc).each do |learning_log| %>
-    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; color: #333;">
-      <strong><%= learning_log.learned_on %></strong> ｜ <%= (learning_log.duration_mins / 60.0).round(1) %> 時間 (<%= learning_log.duration_mins %>分)
-      <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95rem;"><%= learning_log.memo %></p>
+    <div id="log-box-<%= learning_log.id %>" style="background: #f3f4f6; padding: 15px; border-radius: 8px; color: #333; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <strong><%= learning_log.learned_on %></strong> ｜ <%= (learning_log.duration_mins / 60.0).round(1) %> 時間 (<%= learning_log.duration_mins %>分)
+        <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95rem;"><%= learning_log.memo %></p>
+      </div>
+      <button onclick="deleteLogAsync(<%= learning_log.id %>)" style="background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">削除</button>
     </div>
   <% end %>
 </div>
@@ -96,5 +99,36 @@
   document.addEventListener("turbo:load", initForm);
   document.addEventListener("DOMContentLoaded", initForm);
   initForm();
+
+  // ⚡ ページをリロードせずにその場でDBと画面からログを消し去るロジック
+  window.deleteLogAsync = async (id) => {
+    if (!confirm("この運行記録を削除（枠を解放）してよろしいですか？")) return;
+
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    try {
+      const response = await fetch(`/learning_logs/${id}.json`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": token,
+          "Accept": "application/json"
+        }
+      });
+
+      if (response.ok) {
+        // 1. 画面から対象のログボックスを無遅延で消去
+        const targetBox = document.getElementById(`log-box-${id}`);
+        if (targetBox) targetBox.remove();
+
+        // 2. メーターの数値を最新状態に再計算するため、一度画面をリロード、または再集計
+        // ※今回は確実性を重視し、削除成功時に数値を綺麗にするため自動でページを再読込させます
+        window.location.reload();
+      } else {
+        alert("削除処理に失敗しました。");
+      }
+    } catch (err) {
+      console.error("通信エラー:", err);
+    }
+  };
 })();
 </script>
