@@ -1,24 +1,44 @@
-# README
+# rails_practice
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Ruby on Rails 8 を採用し、高速なCRUD処理と外部公開（本番環境デプロイ）、およびモバイル実機（Xiaomi 15T）との完全同期を実現した実戦型Webアプリケーションの開発リポジトリです。
 
-Things you may want to cover:
+既存のコードをコピーするのではなく、フレームワークの設計思想を深く理解し、本番環境の厳しい制約を独自の設計（C案の精神）で突破した軌跡をここに記録します。
 
-* Ruby version
+---
 
-* System dependencies
+## 🚀 本システムの強みと実装実績
 
-* Configuration
+### 1. 異次元の開発スピード（Rails 8 思想の掌握）
+* **MVC ✕ 規約重視の開発**: Scaffoldを駆使した迅速な雛形生成から、精密なマイグレーション管理により、設計から実装までの無駄な時間を極限まで排除。
+* **Fetch API による非同期UI**: フロントエンドに `Fetch API` を組み込み、ページ遷移のない滑らかで実用的なデータ連携を具現化。
 
-* Database creation
+### 2. インフラ制限の完全粉砕（Render無料枠の攻略）
+デプロイ先であるRender無料枠の厳しいリソース制限に対し、以下の2つのアプローチでシステムを最適化しました。
+* **ローカル・プリコンパイル作戦**: 512MB RAMの壁によるビルドエラーを回避するため、アセットコンパイルをローカル環境（Lubuntu）側で事前に処理して出荷。
+* **`storage/` 配備の閃き**: Read-only file systemの制約をクリアするため、動的データを適切なディレクトリ（`storage/`）へ逃がす設計を施し、本番環境での永続的なCRUD処理を安定化。
 
-* Database initialization
+---
 
-* How to run the test suite
+## 🛠️ 開発環境および技術スタック
 
-* Services (job queues, cache servers, search engines, etc.)
+* **サーバーサイド**: Ruby 3.3.x / Ruby on Rails 8.x
+* **データベース**: SQLite3
+* **フロントエンド**: HTML5 / JavaScript (Fetch API)
+* **開発ホストOS**: Lubuntu 24.04 LTS (Lenovo G580)
+* **実機検証デバイス**: Xiaomi 15T
 
-* Deployment instructions
+---
 
-* ...
+## 🏃‍♂️ ローカル環境での起動手順
+
+リポジトリをクローンした後、以下のコマンドを順に実行してアプリケーションを起動します。
+
+```bash
+# 1. 依存ライブラリのインストール
+bundle install
+
+# 2. データベースの作成およびマイグレーションの実行
+bin/rails db:prepare
+
+# 3. サーバーの起動
+bin/rails server
