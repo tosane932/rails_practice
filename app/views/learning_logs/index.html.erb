@@ -1,0 +1,100 @@
+<div style="background: #1e1e24; color: #f5f5f7; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 5px solid #38bdf8; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+  <h2 style="margin: 0 0 10px 0; color: #38bdf8; font-size: 1.25rem; letter-spacing: 0.05em;">📊 マスター運行記録・現在の位置</h2>
+  <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 1.1rem;">
+    <div><strong>総学習日数:</strong> <span id="stat-days" style="color: #38bdf8; font-size: 1.3rem;"><%= LearningLog.total_days %></span> 日間</div>
+    <div><strong>総学習時間:</strong> <span id="stat-hours" style="color: #38bdf8; font-size: 1.3rem;"><%= LearningLog.total_hours %></span> 時間</div>
+    <div><strong>現在のLv:</strong> <span id="stat-level" style="color: #38bdf8; font-size: 1.3rem;">Lv.<%= LearningLog.current_level %></span></div>
+  </div>
+</div>
+
+<div style="background: #2a2a35; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+  <h3 style="margin: 0 0 15px 0; color: #a855f7; font-size: 1.1rem;">⚡ 運行記録クイック・デプロイ</h3>
+  <form id="async-log-form" style="display: flex; flex-direction: column; gap: 15px;">
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 150px;">
+        <label style="color: #ccc; display: block; margin-bottom: 5px; font-size: 0.9rem;">日付 (Learned on)</label>
+        <input type="date" id="form-date" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #444; background: #1e1e24; color: #fff;">
+      </div>
+      <div style="flex: 1; min-width: 150px;">
+        <label style="color: #ccc; display: block; margin-bottom: 5px; font-size: 0.9rem;">学習時間（分）(Duration mins)</label>
+        <input type="number" id="form-mins" required min="1" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #444; background: #1e1e24; color: #fff;">
+      </div>
+    </div>
+    <div>
+      <label style="color: #ccc; display: block; margin-bottom: 5px; font-size: 0.9rem;">戦闘メモ (Memo)</label>
+      <textarea id="form-memo" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #444; background: #1e1e24; color: #fff; rows: 2;"></textarea>
+    </div>
+    <button type="submit" style="background: #a855f7; color: #fff; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">今夜の成果を出荷する</button>
+  </form>
+</div>
+
+<h1>📋 運行記録ログ一覧</h1>
+<div id="learning_logs_list" style="display: flex; flex-direction: column; gap: 10px;">
+  <% @learning_logs.order(learned_on: :desc).each do |learning_log| %>
+    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; color: #333;">
+      <strong><%= learning_log.learned_on %></strong> ｜ <%= (learning_log.duration_mins / 60.0).round(1) %> 時間 (<%= learning_log.duration_mins %>分)
+      <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95rem;"><%= learning_log.memo %></p>
+    </div>
+  <% end %>
+</div>
+
+<script>
+// 確実にこの画面で実行させるための直接パッチ
+(() => {
+  const initForm = () => {
+    const form = document.getElementById("async-log-form");
+    if (!form) return;
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      
+      const date = document.getElementById("form-date").value;
+      const mins = document.getElementById("form-mins").value;
+      const memo = document.getElementById("form-memo").value;
+      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+      try {
+        const response = await fetch("/learning_logs.json", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": token,
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            learning_log: { learned_on: date, duration_mins: mins, memo: memo }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // メーター更新
+          document.getElementById("stat-days").innerText = data.total_days;
+          document.getElementById("stat-hours").innerText = data.total_hours;
+          document.getElementById("stat-level").innerText = data.current_level;
+
+          // 一覧へ追加
+          const list = document.getElementById("learning_logs_list");
+          const hours = (data.log.duration_mins / 60.0).toFixed(1);
+          const newHtml = `
+            <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; color: #333; margin-bottom: 10px;">
+              <strong>${data.log.learned_on}</strong> ｜ ${hours} 時間 (${data.log.duration_mins}分)
+              <p style="margin: 5px 0 0 0; color: #666;">${data.log.memo || ""}</p>
+            </div>
+          `;
+          list.insertAdjacentHTML("afterbegin", newHtml);
+          form.reset();
+        } else {
+          alert("同じ日付は登録できません。");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  };
+
+  document.addEventListener("turbo:load", initForm);
+  document.addEventListener("DOMContentLoaded", initForm);
+  initForm();
+})();
+</script>

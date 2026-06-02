@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  learned_on: 2026-06-02
+  duration_mins: 1
+  memo: MyText
+
+two:
+  learned_on: 2026-06-02
+  duration_mins: 1
+  memo: MyText

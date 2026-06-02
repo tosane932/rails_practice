@@ -1,0 +1,11 @@
+<% content_for :title, "New learning log" %>
+
+<h1>New learning log</h1>
+
+<%= render "form", learning_log: @learning_log %>
+
+<br>
+
+<div>
+  <%= link_to "Back to learning logs", learning_logs_path %>
+</div>

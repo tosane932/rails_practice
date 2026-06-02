@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :learning_logs
   get "welcome/index"
   post "welcome/result"
 
